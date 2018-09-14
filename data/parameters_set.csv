@@ -1,0 +1,13 @@
+S;seed;connectance.type;amensalism;amensalism.connectance;antagonism;antagonism.connectance;commensalism;commensalism.connectance;competition;competition.connectance;mutualism;mutualism.connectance;mean.a;sd.a;mean.d;sd.d;N;meta.sd.a;meta.sd.d;type;topology;dispersal.coefs;max.dispersal.rate;foraging.coefs;max.foraging.rate;nstep;
+1;15;1;undirected;structured;0.1;structured;0.1;structured;0.1;structured;0.1;structured;0.1;0;0.25;-1;0;10;0.1;0.1;top;global;constant;1;constant;0;10000
+2;15;2;undirected;structured;0.1;structured;0.1;structured;0.1;structured;0.1;structured;0.1;0.25;0.1;-1;0;10;0.1;0.1;top;linear;constant;1;constant;0;10000
+3;15;3;undirected;structured;0.1;structured;0.1;structured;0.1;structured;0.1;structured;0.1;0.25;0.1;-1;0;10;0.1;0.1;top;random;constant;1;constant;0;10000
+4;15;4;undirected;structured;0.1;structured;0.1;structured;0.1;structured;0.1;structured;0.1;0.25;0.1;-1;0;10;0.1;0.1;top;linear;constant;0;constant;0.5;10000
+5;15;5;undirected;structured;0.1;structured;0.1;structured;0.1;structured;0.1;structured;0.1;0.25;0.1;-1;0;10;0.1;0.1;top;linear;constant;0;scaling;0.5;10000
+6;15;6;undirected;structured;0;structured;0.2;structured;0;structured;0;structured;0;0.25;0.1;-1;0;10;0.1;0.1;top;linear;constant;1;constant;0;10000
+7;15;7;undirected;structured;0;structured;0.2;structured;0;structured;0;structured;0;0.25;0.1;-1;0;10;0.1;0.1;top;linear;constant;0;constant;0.5;10000
+8;15;8;undirected;structured;0;structured;0.2;structured;0;structured;0;structured;0;0.25;0.1;-1;0;10;0.1;0.1;top;linear;constant;0;scaling;0.5;10000
+9;15;9;undirected;structured;0.1;structured;0.1;structured;0.1;structured;0.1;structured;0.1;0.25;0.1;-1;0;10;0.1;0.1;top;linear;constant;1;constant;0.5;10000
+10;15;10;undirected;structured;0.1;structured;0.1;structured;0.1;structured;0.1;structured;0.1;0.25;0.1;-1;0;10;0.1;0.1;top;linear;scaling;1;scaling;0.5;10000
+11;15;11;undirected;structured;0;structured;0.2;structured;0;structured;0;structured;0;0.25;0.1;-1;0;10;0.1;0.1;top;linear;constant;1;constant;0.5;10000
+12;15;12;undirected;structured;0;structured;0.2;structured;0;structured;0;structured;0;0.25;0.1;-1;0;10;0.1;0.1;top;linear;scaling;1;scaling;0.5;10000
