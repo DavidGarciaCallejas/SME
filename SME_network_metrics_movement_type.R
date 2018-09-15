@@ -1,3 +1,11 @@
+####
+# analysis of network structural metrics
+# in this script, differentiating by movement mode,
+# and testing the results with tukey and dunn tests
+# See a similar script, "SME_network_metrics_effect_type"
+# for differentiating networks depending also on the interaction type,
+# e.g. direct or net interactions
+####
 
 # palettes for empirical and simulated data
 cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
@@ -114,9 +122,6 @@ for(i.ID in 1:length(ID)){
   data.list[[i.ID]] <- readr::read_delim(paste("./results/results_replicates_ID",ID[i.ID],".csv",sep=""),delim = ";",col_types = cols())
   temp.species.data <- readr::read_delim(paste("./results/species_data_replicates_ID",ID[i.ID],".csv",sep=""),delim = ";",col_types = cols())
   
-  # data.list[[i.ID]] <- readr::read_delim(paste("./results/results_replicates_ID",ID[i.ID],".csv",sep=""),delim = ";",col_types = cols())
-  # temp.species.data <- readr::read_delim(paste("./results/species_data_replicates_ID",ID[i.ID],".csv",sep=""),delim = ";",col_types = cols())
-  
   # trophic level of the affected species
   data.list[[i.ID]] <- left_join(data.list[[i.ID]],temp.species.data,by=c("replicate", "affected.sp" = "species"))
   names(data.list[[i.ID]])[names(data.list[[i.ID]]) %in% c("PreyAvg.TL","niche.axis")] <- c("affected.sp.TL","affected.sp.niche")
@@ -176,10 +181,6 @@ species.data$simulation.ID <- plyr::revalue(species.data$simulation.ID,replace =
                                                                                    "10" = "linear-scaling disp-scaling forag",
                                                                                    "11" = "dispersal and foraging",
                                                                                    "12" = "linear-scaling disp-scaling forag-antag"))
-# full.data$sign <- as.factor(ifelse(full.data$net.effect>0,"positive","negative"))
-# full.data$sign <- as.factor(ifelse(full.data$avg.net.effect>0,"positive","negative"))
-
-# full.data$patch <- ifelse(full.data$spatial.distance == 0,"within","across")
 
 rm(data.list)
 gc()
@@ -237,10 +238,10 @@ connectance.spread <- spread(connectance.results,key = patch,value = connectance
 names(connectance.spread)[3] <- "intra-patch.connectance"
 names(connectance.spread)[4] <- "inter-patch.connectance"
 
-# kruskal wallis for differences in intra and interpatch connectances among groups
+# differences in intra and interpatch connectances among groups
 
-connectance.plot = ggplot(connectance.results) + 
-  geom_boxplot(aes(x = simulation, y = connectance, fill = patch))
+# connectance.plot = ggplot(connectance.results) + 
+#   geom_boxplot(aes(x = simulation, y = connectance, fill = patch))
 
 ################
 # other metrics
@@ -357,7 +358,7 @@ metrics.plot <- ggplot(network.metrics.gather) +
   facet_wrap(~metric,scales = "free_y",labeller = labeller(metric = labels)) +
   NULL
 
-readr::write_delim(network.metrics,path = paste("./results/",topology,"/network_metrics.csv",sep=""),delim = ";")
-tiff(paste("./results/",topology,"/images/network_metrics_",topology,".tiff",sep=""), res=600, compression = "lzw", width = 4000, height = 2500, units = "px")
-print(metrics.plot)
-dev.off()
+# readr::write_delim(network.metrics,path = paste("./results/",topology,"/network_metrics.csv",sep=""),delim = ";")
+# tiff(paste("./results/",topology,"/images/network_metrics_",topology,".tiff",sep=""), res=600, compression = "lzw", width = 4000, height = 2500, units = "px")
+# print(metrics.plot)
+# dev.off()

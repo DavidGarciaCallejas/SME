@@ -1,21 +1,16 @@
+####
+# analysis of network structural metrics
+# in this script, differentiating by movement mode and interaction type,
+# as in Fig. 3 of the manuscript.
+# In this case, no statistical tests are performed.
+####
 
 # palettes for empirical and simulated data
 cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
-#########################
-# generate_label_df <- function(my.data, HSD, flev, vspace = 0.5, my.var){
-#   Tukey.levels <- HSD[[flev]][, 4]
-#   Tukey.labels <- multcompView::multcompLetters(Tukey.levels)["Letters"]
-#   plot.labels <- names(Tukey.labels[["Letters"]])
-#   boxplot.df <- plyr::ddply(my.data, flev, function(x) max(fivenum(my.data[,my.var])) + 
-#                               vspace)
-#   plot.levels <- data.frame(plot.labels, labels = Tukey.labels[["Letters"]], 
-#                             stringsAsFactors = FALSE)
-#   labels.df <- merge(plot.levels, boxplot.df, by.x = "plot.labels", 
-#                      by.y = flev, sort = FALSE)
-#   return(labels.df)
-# }
 ##########################
+# auxiliary functions for some metrics
+
 hill.diversity <- function(abundances,q = 1){
   abundances <- abundances[abundances != 0]
   abundances <- abundances/sum(abundances)
@@ -114,9 +109,6 @@ for(i.ID in 1:length(ID)){
   data.list[[i.ID]] <- readr::read_delim(paste("./results/results_replicates_ID",ID[i.ID],".csv",sep=""),delim = ";",col_types = cols())
   temp.species.data <- readr::read_delim(paste("./results/species_data_replicates_ID",ID[i.ID],".csv",sep=""),delim = ";",col_types = cols())
   
-  # data.list[[i.ID]] <- readr::read_delim(paste("./results/results_replicates_ID",ID[i.ID],".csv",sep=""),delim = ";",col_types = cols())
-  # temp.species.data <- readr::read_delim(paste("./results/species_data_replicates_ID",ID[i.ID],".csv",sep=""),delim = ";",col_types = cols())
-  
   # trophic level of the affected species
   data.list[[i.ID]] <- left_join(data.list[[i.ID]],temp.species.data,by=c("replicate", "affected.sp" = "species"))
   names(data.list[[i.ID]])[names(data.list[[i.ID]]) %in% c("PreyAvg.TL","niche.axis")] <- c("affected.sp.TL","affected.sp.niche")
@@ -176,10 +168,6 @@ species.data$simulation.ID <- plyr::revalue(species.data$simulation.ID,replace =
                                                                                    "10" = "linear-scaling disp-scaling forag",
                                                                                    "11" = "dispersal and foraging",
                                                                                    "12" = "linear-scaling disp-scaling forag-antag"))
-# full.data$sign <- as.factor(ifelse(full.data$net.effect>0,"positive","negative"))
-# full.data$sign <- as.factor(ifelse(full.data$avg.net.effect>0,"positive","negative"))
-
-# full.data$patch <- ifelse(full.data$spatial.distance == 0,"within","across")
 
 rm(data.list)
 gc()
@@ -256,7 +244,7 @@ connectance.spread <- spread(connectance.results,key = patch,value = connectance
 names(connectance.spread)[4] <- "intra-patch.connectance"
 names(connectance.spread)[5] <- "inter-patch.connectance"
 
-# check the connectances
+# take a look at the connectances
 # connectance.plot = ggplot(connectance.results) + 
 #   geom_boxplot(aes(x = simulation, y = connectance, fill = patch)) + 
 #   facet_grid(.~effect) +
@@ -324,7 +312,6 @@ for(i.sim in 1:length(simulation.levels)){
       # quantitative modularity -- including negative weights!! see the function help page
       # preliminary tests showed that no more than 10 modules are usually found, so take that number as a maximum
       # in order to make it a bit faster
-      # my.community <- igraph::cluster_spinglass(my.network,update.rule = "config",implementation = "neg", spins = 10)
       my.community <- igraph::cluster_spinglass(my.network,implementation = "neg", spins = 10)
       
       network.metrics$quantitative.modularity[result.index] <- my.community$modularity
@@ -335,8 +322,10 @@ for(i.sim in 1:length(simulation.levels)){
 }# for i.sim
 # 
 
+# prepare the data for the image
 network.metrics.gather <- gather(network.metrics,key = "metric",value = "value",-replicate,-simulation,-effect)
 
+# also, take a look at mean values
 mean.metrics <- network.metrics.gather %>% group_by(effect,simulation,metric) %>% summarise(mean.value = mean(value), sd.value = sd(value))
 mean.metrics <- subset(mean.metrics, metric %in% c("inter-patch.connectance","intra-patch.connectance","average.path.length","quantitative.modularity"))
 
@@ -349,10 +338,12 @@ network.metrics.plot <- droplevels(subset(network.metrics.gather, metric %in% c(
                                                                                   # "quantitative.connectance",
                                                                                   "quantitative.modularity")))
 
+# order
 network.metrics.plot$metric <- factor(network.metrics.plot$metric, levels = c("intra-patch.connectance",
                                                                                  "inter-patch.connectance",
                                                                                  "average.path.length",
                                                                                  "quantitative.modularity"))
+# and write nice names
 network.metrics.plot$metric <- plyr::revalue(network.metrics.plot$metric, c("average.path.length" = "average path length",
                                                                             "intra-patch.connectance" = "intra-patch connectance",
                                                                             "inter-patch.connectance" = "inter-patch connectance",
@@ -360,8 +351,6 @@ network.metrics.plot$metric <- plyr::revalue(network.metrics.plot$metric, c("ave
                                                                             # quantitative.connectance = "quantitative connectance",
                                                                             "quantitative.modularity" = "modularity"))
 
-##################
-# final touches
 sim.labels <- c("dispersal","foraging","dispersal\nand foraging")
 
 ##################
@@ -385,17 +374,8 @@ metrics.plot <-
   guides(fill = FALSE)+
   NULL
 
-# metrics.plot
-
-# metrics.plot <- ggplot(network.metrics.gather) + 
-#   geom_col(aes(x = simulation,y = value,fill = effect), position = "dodge") +
-#   # scale_fill_manual(values = cbPalette[c(2,4,6)]) + 
-#   scale_x_discrete(labels = sim.labels) +
-#   xlab("") + ylab("metric value") +
-#   # guides(fill = FALSE) +
-#   DGC::theme_Publication() +
-#   facet_wrap(~metric,scales = "free_y")+#,labeller = labeller(metric = metric.labels)) +
-#   NULL
+# other types of plot are not that nice, 
+# considering that e.g. connectance is always 1 for some networks
 
 # metrics.plot <- ggplot(network.metrics.gather) + 
   # geom_boxplot(aes(x = simulation,y = value,fill = effect)) +
@@ -407,6 +387,8 @@ metrics.plot <-
   # facet_wrap(~metric,scales = "free_y")+#,labeller = labeller(metric = metric.labels)) +
   # NULL
 
+##########
+# store the figure and the metric results
 # readr::write_delim(network.metrics,path = paste("./results/network_metrics.csv",sep=""),delim = ";")
 tiff(paste("./results/images/network_metrics_",topology,".tiff",sep=""), res=600, compression = "lzw", width = 4000, height = 4000, units = "px")
 print(metrics.plot)
