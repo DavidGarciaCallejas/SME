@@ -3,18 +3,18 @@
 cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
 
 #########################
-generate_label_df <- function(my.data, HSD, flev, vspace = 0.5, my.var){
-  Tukey.levels <- HSD[[flev]][, 4]
-  Tukey.labels <- multcompView::multcompLetters(Tukey.levels)["Letters"]
-  plot.labels <- names(Tukey.labels[["Letters"]])
-  boxplot.df <- plyr::ddply(my.data, flev, function(x) max(fivenum(my.data[,my.var])) + 
-                              vspace)
-  plot.levels <- data.frame(plot.labels, labels = Tukey.labels[["Letters"]], 
-                            stringsAsFactors = FALSE)
-  labels.df <- merge(plot.levels, boxplot.df, by.x = "plot.labels", 
-                     by.y = flev, sort = FALSE)
-  return(labels.df)
-}
+# generate_label_df <- function(my.data, HSD, flev, vspace = 0.5, my.var){
+#   Tukey.levels <- HSD[[flev]][, 4]
+#   Tukey.labels <- multcompView::multcompLetters(Tukey.levels)["Letters"]
+#   plot.labels <- names(Tukey.labels[["Letters"]])
+#   boxplot.df <- plyr::ddply(my.data, flev, function(x) max(fivenum(my.data[,my.var])) + 
+#                               vspace)
+#   plot.levels <- data.frame(plot.labels, labels = Tukey.labels[["Letters"]], 
+#                             stringsAsFactors = FALSE)
+#   labels.df <- merge(plot.levels, boxplot.df, by.x = "plot.labels", 
+#                      by.y = flev, sort = FALSE)
+#   return(labels.df)
+# }
 ##########################
 hill.diversity <- function(abundances,q = 1){
   abundances <- abundances[abundances != 0]
@@ -74,9 +74,6 @@ QuantitativeConnectance <- function(interaction.matrix){
   (LD/num.sp)
 }
 
-##########################
-##########################
-
 #########################
 #########################
 # set of simulations
@@ -114,8 +111,8 @@ sign.switches <- NULL
 
 for(i.ID in 1:length(ID)){
   
-  data.list[[i.ID]] <- readr::read_delim(paste("./results/",topology,"/results_replicates_ID",ID[i.ID],".csv",sep=""),delim = ";",col_types = cols())
-  temp.species.data <- readr::read_delim(paste("./results/",topology,"/species_data_replicates_ID",ID[i.ID],".csv",sep=""),delim = ";",col_types = cols())
+  data.list[[i.ID]] <- readr::read_delim(paste("./results/results_replicates_ID",ID[i.ID],".csv",sep=""),delim = ";",col_types = cols())
+  temp.species.data <- readr::read_delim(paste("./results/species_data_replicates_ID",ID[i.ID],".csv",sep=""),delim = ";",col_types = cols())
   
   # data.list[[i.ID]] <- readr::read_delim(paste("./results/results_replicates_ID",ID[i.ID],".csv",sep=""),delim = ";",col_types = cols())
   # temp.species.data <- readr::read_delim(paste("./results/species_data_replicates_ID",ID[i.ID],".csv",sep=""),delim = ";",col_types = cols())
