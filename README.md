@@ -15,7 +15,7 @@ Then, the figures are generated with
 
 and the one related to network structure with
 
-### SME_network_metrics
+### SME_network_metrics_effect_type
 
 the sensitivity analyses of the appendix need additional simulations. Check the main script adapted to it, and the script for generating its results:
 

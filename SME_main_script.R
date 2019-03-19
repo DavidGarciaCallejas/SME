@@ -10,10 +10,17 @@ source("SME_MovementMatrix.R")
 source("SME_ODE_functions.R")
 
 ##########################
+library(rootSolve)
+library(cheddar)
+library(igraph)
+library(tidyverse)
 ##########################
 
 # write the results to a file?
 store.results <- TRUE
+# this is just "" for the standard simulations, and any other suffix can be appended
+# in order to differentiate other runs.
+my.file.name <- "6sp"
 
 # write only the results for these values
 dispersal.value <- 0.5
@@ -26,7 +33,7 @@ replicates <- 1000
 verbose <- TRUE
 
 # how many steps from min to max dispersal/foraging?
-nstep <- 100
+nstep <- 50
 
 # load parameters 
 #######################
@@ -52,6 +59,7 @@ nstep <- 100
 ID <- 11
 
 pars = read.table("./data/parameters_set.csv",header = T,sep = ";",dec = ".",stringsAsFactors = F)
+# pars = read.table("./data/parameters_set_6sp.csv",header = T,sep = ";",dec = ".",stringsAsFactors = F)
 
 # varying dispersal and/or foraging rates
 dispersal.rate.min <- 1e-4
@@ -188,7 +196,7 @@ for(i.replicate in 1:replicates){
         expanded.links <- as.data.frame.table(antagonism.matrix,stringsAsFactors = FALSE)
         expanded.links <- subset(expanded.links, Freq < 0)
         names(expanded.links) <- c("resource","consumer","coef")
-        my.food.web <- Community(nodes = nodes,properties=list(title='foo'),trophic.links = expanded.links)
+        my.food.web <- cheddar::Community(nodes = nodes,properties=list(title='foo'),trophic.links = expanded.links)
         trophic.positions <- data.frame(species = 1:S, PreyAvg.TL = PreyAveragedTrophicLevel(my.food.web))
         
       }# if fully connected
@@ -240,19 +248,19 @@ for(i.replicate in 1:replicates){
     
     # path lengths
     graph.D <- igraph::graph_from_adjacency_matrix(adjmatrix = metaA+D,mode = "undirected",weighted = "1",diag = FALSE)
-    path.lengths <- distances(graph = graph.D,algorithm = "unweighted")
+    path.lengths <- igraph::distances(graph = graph.D,algorithm = "unweighted")
     
     # Steady state solution
-    SS = stode(y = SS,time=0,func=model_stode,parms=NULL,A=metaA,D=D, positive = TRUE)[[1]]
+    SS = rootSolve::stode(y = SS,time=0,func=model_stode,parms=NULL,A=metaA,D=D, positive = TRUE)[[1]]
     
     # Jacobian
-    J = jacobian.full(y=SS,func=model_J,A=metaA,D=D)
+    J = rootSolve::jacobian.full(y=SS,func=model_J,A=metaA,D=D)
     
     # Local stability analysis
     lmax = max(as.double(eigen(J)$values))	
     
     # negative of the inverse jacobian: net effects matrix
-    invJ <- -ginv(J)
+    invJ <- -MASS::ginv(J)
     
     ################
     ################
@@ -269,7 +277,7 @@ for(i.replicate in 1:replicates){
         trophic.positions$replicate <- i.replicate
         trophic.positions$niche.axis <- niche
         
-        trophic.info <- bind_rows(trophic.info,trophic.positions)
+        trophic.info <- dplyr::bind_rows(trophic.info,trophic.positions)
         
         # expand the jacobian
         colnames(J) <- 1:(N*S)
@@ -366,7 +374,7 @@ for(i.replicate in 1:replicates){
 
 if(store.results){
   print("storing results...")
-  readr::write_delim(x = trophic.info,path = paste("./results/species_data_replicates_ID",ID,".csv",sep=""),delim = ";",append = F)
+  readr::write_delim(x = trophic.info,path = paste("./results/species_data_replicates_ID",ID,"_",my.file.name,".csv",sep=""),delim = ";",append = F)
   
   ## rearrange results in one single file
   results.list <- list()
@@ -376,10 +384,10 @@ if(store.results){
       results.list[[i.file]] <- readr::read_delim(paste("./results/",num.files[i.file],sep=""),delim = ";",col_types = cols())
     }
   }
-  full.data <- bind_rows(results.list)
+  full.data <- dplyr::bind_rows(results.list)
   full.data <- droplevels(subset(full.data,replicate != 0))
   
-  readr::write_delim(x = full.data,path = paste("./results/results_replicates_ID",ID,".csv",sep=""),delim = ";",append = F)
+  readr::write_delim(x = full.data,path = paste("./results/results_replicates_ID",ID,"_",my.file.name,".csv",sep=""),delim = ";",append = F)
   # delete temporary files
   file.remove(paste("./results/",num.files,sep=""))
 }
