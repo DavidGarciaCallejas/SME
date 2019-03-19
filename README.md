@@ -1,4 +1,9 @@
 # SME
+
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1489992.svg)](https://doi.org/10.5281/zenodo.1489992)
+
+
 spatial meta-ecosystem study: code for reproducing the results
 
 For running the scripts, you need to create a /results/images folder in your directory, and also have /data/parameter_set.csv
