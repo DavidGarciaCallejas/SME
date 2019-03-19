@@ -191,14 +191,17 @@ dev.off()
 # spatial distance and path length line plots
 p_dodge <- position_dodge(0.2)
 
-distances.data <- full.data %>% filter(path.length != 0) %>% group_by(simulation.ID,spatial.distance,path.length) %>% summarise(avg.net.effect = mean(abs(net.effect)))
+distances.data <- full.data %>% filter(path.length != 0) %>% group_by(simulation.ID,spatial.distance,path.length) %>% summarise(avg.net.effect = mean(abs(net.effect)),
+                                                                                                                                                      lower.error = quantile(abs(net.effect),0.025),
+                                                                                                                                                      upper.error = quantile(abs(net.effect),0.975))
 
 distances.plot <- ggplot(distances.data,aes(x = spatial.distance,y = avg.net.effect, group = simulation.ID))
 
 distances.plot <- distances.plot + stat_summary(aes(color = simulation.ID),
                                                     fun.y = mean,
-                                                    fun.ymin = function(x) ifelse(mean(x) - sd(x) > 0,mean(x) - sd(x),0), 
-                                                    fun.ymax = function(x) mean(x) + sd(x), 
+                                                    # fun.ymin = function(x) ifelse(mean(x) - sd(x) > 0,mean(x) - sd(x),0), 
+                                                    fun.ymin = function(x) mean(x) - quantile(x,0.025),
+                                                    fun.ymax = function(x) mean(x) + quantile(x,0.975), 
                                                     geom = "errorbar",
                                                     position = p_dodge, width = 0.4) 
 
@@ -217,10 +220,10 @@ distances.plot <- distances.plot + stat_summary(fun.y = mean,
 
 distances.plot <- distances.plot + scale_color_manual(name = "", values = cbPalette[c(2,4,6)])
 # distances.plot <- distances.plot + scale_color_grey(name = "",start = 0.8,end = 0.2)
-distances.plot <- distances.plot + theme_Publication() 
+distances.plot <- distances.plot + DGC::theme_Publication() 
 distances.plot <- distances.plot + xlab("spatial distance") + ylab("net effect") 
 # distances.plot <- distances.plot + ylim(0,0.26)
-distances.plot <- distances.plot + scale_y_continuous(limits = c(0,0.8),breaks = seq(0,0.8,0.1))
+distances.plot <- distances.plot + scale_y_continuous(limits = c(0,1.1),breaks = seq(0,1.1,0.1))
 
 tiff(paste("./results/images/spatial_distance_",topology,".tiff",sep=""), res=600, compression = "lzw", width = 4000, height = 2500, units = "px")
 print(distances.plot)
@@ -234,8 +237,10 @@ path.length.plot <- ggplot(distances.data,aes(x = path.length,y = avg.net.effect
 
 path.length.plot <- path.length.plot + stat_summary(aes(color = simulation.ID),
                                                 fun.y = mean,
-                                                fun.ymin = function(x) ifelse(mean(x) - sd(x) > 0,mean(x) - sd(x),0), 
-                                                fun.ymax = function(x) mean(x) + sd(x), 
+                                                # fun.ymin = function(x) ifelse(mean(x) - sd(x) > 0,mean(x) - sd(x),0), 
+                                                # fun.ymax = function(x) mean(x) + sd(x), 
+                                                fun.ymin = function(x) mean(x) - quantile(x,0.025),
+                                                fun.ymax = function(x) mean(x) + quantile(x,0.975), 
                                                 geom = "errorbar",
                                                 position = p_dodge, width = 0.4) 
 
@@ -254,10 +259,10 @@ path.length.plot <- path.length.plot + stat_summary(fun.y = mean,
 
 path.length.plot <- path.length.plot + scale_color_manual(name = "", values = cbPalette[c(2,4,6)])
 # path.length.plot <- path.length.plot + scale_color_grey(name = "",start = 0.8,end = 0.2)
-path.length.plot <- path.length.plot + theme_Publication()
+path.length.plot <- path.length.plot + DGC::theme_Publication()
 path.length.plot <- path.length.plot + xlab("average path length") + ylab("net effect") 
 path.length.plot <- path.length.plot + scale_x_continuous(limits = c(0.85,7.2),breaks = 1:7)
-path.length.plot <- path.length.plot + scale_y_continuous(limits = c(0,0.8),breaks = seq(0,0.8,0.1))
+path.length.plot <- path.length.plot + scale_y_continuous(limits = c(0,1.1),breaks = seq(0,1.1,0.1))
 # path.length.plot <- path.length.plot + ylim(0,0.7)
 
 tiff(paste("./results/images/path_length_",topology,".tiff",sep=""), res=600, compression = "lzw", width = 4300, height = 2500, units = "px")
